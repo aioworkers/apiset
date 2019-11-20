@@ -1,0 +1,32 @@
+dist: xenial
+language: python
+sudo: false
+
+python:
+  - 3.6
+  - 3.7
+
+install:
+  - pip install -U pip setuptools pipenv
+  - pipenv install -d --system
+  - pip install codecov
+
+script: pytest
+
+after_success:
+  - codecov
+
+before_deploy:
+  - make clear
+  - make apiset/version.py
+  - make swagger_ui
+
+deploy:
+  provider: pypi
+  user: yttrium
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: aioworkers/apiset
+    condition: $TRAVIS_PYTHON_VERSION = 3.6
+  skip_cleanup: true
